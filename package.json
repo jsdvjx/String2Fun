@@ -10,14 +10,14 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/jsdvjx/TrackingMore.git"
+        "url": "git+https://github.com/jsdvjx/String2Fun.git"
     },
     "author": "",
     "license": "ISC",
     "bugs": {
-        "url": "https://github.com/jsdvjx/TrackingMore/issues"
+        "url": "https://github.com/jsdvjx/String2Fun/issues"
     },
-    "homepage": "https://github.com/jsdvjx/TrackingMore#readme",
+    "homepage": "https://github.com/jsdvjx/String2Fun#readme",
     "devDependencies": {
         "@types/node": "^12.7.4",
         "@typescript-eslint/eslint-plugin": "^2.1.0",
