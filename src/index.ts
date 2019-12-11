@@ -1,11 +1,15 @@
+import { compose, last, upperFirst, toLower } from 'lodash/fp'
+import j2i from 'json-to-ts'
+import _coder from './coder';
+export const coder = _coder;
 interface RegexDict {
     [k: string]: RegExp;
 }
 interface StrParameter {
-    [k: string]: string | number;
+    [k: string]: string;
 }
 
-function createDict(string: String) {
+function createDict(string: string) {
     const reg = /\{(.+?)\}+/g;
     const dict = Array.from(new Set(string.match(reg) || []))
         .map(s => ({
@@ -21,7 +25,32 @@ function createDict(string: String) {
         );
     return dict;
 }
-export default function createFun<T = StrParameter>(string: String) {
+function createInterfaceJson(template: string) {
+    return Array.from(new Set(template.match(/\{(.+?)\}+/g) || []))
+        .map(s => ({
+            name: s.replace(/[\{\}]/g, ''),
+            target: 'string',
+        }))
+        .reduce(
+            (t, acc) => {
+                t[acc.name] = acc.target;
+                return t;
+            },
+            {} as StrParameter,
+        );
+
+}
+export function genCode(name: string, template: string) {
+    const paramName = `${compose(upperFirst, toLower)(name)}Param`;
+    const text = last(j2i(createInterfaceJson(template) as any, { rootName: paramName }))
+    const result = `
+${text}
+export const ${name} = createFun<${paramName}>(\`${template}\`)
+`;
+    return result
+}
+
+export default function createFun<T = StrParameter>(string: string) {
     const dict = createDict(string);
     return (parameter: T) =>
         Object.entries(parameter).reduce(

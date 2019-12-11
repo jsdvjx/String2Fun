@@ -1,0 +1,31 @@
+interface RegexDict {
+    [k: string]: RegExp;
+}
+interface StrParameter {
+    [k: string]: string;
+}
+function createFun<T = StrParameter>(string: string) {
+    function createDict(string: string) {
+        const reg = /\{(.+?)\}+/g;
+        const dict = Array.from(new Set(string.match(reg) || []))
+            .map(s => ({
+                name: s.replace(/[\{\}]/g, ''),
+                target: new RegExp(`${s}`, 'g'),
+            }))
+            .reduce(
+                (t, acc) => {
+                    t[acc.name] = acc.target;
+                    return t;
+                },
+                {} as RegexDict,
+            );
+        return dict;
+    }
+    const dict = createDict(string);
+    return (parameter: T) =>
+        Object.entries(parameter).reduce(
+            (str, [k, v]) => str.replace(dict[k], v),
+            string,
+        );
+}
+/*{#template_included#}*/
