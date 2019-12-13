@@ -1,10 +1,10 @@
 interface RegexDict {
     [k: string]: RegExp;
 }
-interface StrParameter {
-    [k: string]: string;
+export interface Maker<T> {
+    (p: T): string
 }
-function createFun<T = StrParameter>(string: string) {
+function createFun<T>(string: string) {
     function createDict(string: string) {
         const reg = /\{(.+?)\}+/g;
         const dict = Array.from(new Set(string.match(reg) || []))
@@ -22,10 +22,10 @@ function createFun<T = StrParameter>(string: string) {
         return dict;
     }
     const dict = createDict(string);
-    return (parameter: T) =>
+    return ((parameter: T) =>
         Object.entries(parameter).reduce(
             (str, [k, v]) => str.replace(dict[k], v),
             string,
-        );
+        )) as Maker<T>;
 }
 /*{#template_included#}*/
