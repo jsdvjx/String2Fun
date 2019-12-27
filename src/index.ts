@@ -42,10 +42,11 @@ function createInterfaceJson(template: string) {
 }
 export function genCode(name: string, template: string) {
     const paramName = `${upperFirst(name)}Param`;
-    const text = last(j2i(createInterfaceJson(template) as any, { rootName: paramName }))
+    const tmp = template.replace(/--.*\s*/g, '');
+    const text = last(j2i(createInterfaceJson(tmp) as any, { rootName: paramName }))
     const result = `
 export ${text}
-export const ${name} = createFun<${paramName}>(\`${template}\`)
+export const ${name} = createFun<${paramName}>(\`${tmp}\`)
 `;
     return result
 }
