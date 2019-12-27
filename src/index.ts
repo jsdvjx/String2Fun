@@ -42,7 +42,7 @@ function createInterfaceJson(template: string) {
 }
 export function genCode(name: string, template: string) {
     const paramName = `${upperFirst(name)}Param`;
-    const tmp = template.replace(/--.*\s*/g, '');
+    const tmp = template.replace(/--.*\s*/g, '\n');
     const text = last(j2i(createInterfaceJson(tmp) as any, { rootName: paramName }))
     const result = `
 export ${text}
