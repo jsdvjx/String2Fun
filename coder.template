@@ -4,28 +4,45 @@ interface RegexDict {
 export interface Maker<T> {
     (p: T): string
 }
+function createDict(tmp: string) {
+    const reg = /\{(.+?)\}+/g;
+    const dict = Array.from(new Set(tmp.match(reg) || []))
+        .map(s => ({
+            name: s.replace(/[\{\}]/g, '').split(":").shift() || '',
+            target: new RegExp(`${s}`, 'g'),
+        }))
+        .reduce(
+            (t, acc) => {
+                t[acc.name] = acc.target;
+                return t;
+            },
+            {} as RegexDict,
+        );
+    return dict;
+}
 function createFun<T>(string: string) {
-    function createDict(string: string) {
-        const reg = /\{(.+?)\}+/g;
-        const dict = Array.from(new Set(string.match(reg) || []))
-            .map(s => ({
-                name: s.replace(/[\{\}]/g, ''),
-                target: new RegExp(`${s}`, 'g'),
-            }))
-            .reduce(
-                (t, acc) => {
-                    t[acc.name] = acc.target;
-                    return t;
-                },
-                {} as RegexDict,
-            );
-        return dict;
-    }
     const dict = createDict(string);
-    return ((parameter: T) =>
-        Object.entries(parameter).reduce(
-            (str, [k, v]) => str.replace(dict[k], v),
-            string,
-        )) as Maker<T>;
+    return ((parameter: T) => {
+        if (parameter) {
+            const type = typeof parameter;
+            switch (type) {
+                case 'bigint':
+                case 'boolean':
+                case 'number':
+                case 'string':
+                    return string.replace(Object.values(dict).pop() || '', (parameter as any).toString())
+                case 'object':
+                default:
+                    return Object.entries(parameter).reduce(
+                        (str, [k, v]) => str.replace(dict[k], v),
+                        string,
+                    )
+            }
+
+        } else {
+            return string;
+        }
+    }
+    ) as Maker<T>;
 }
 /*{#template_included#}*/
